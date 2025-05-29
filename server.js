@@ -1,8 +1,9 @@
 import cors from "cors"
 import express from "express"
 import listEndpoints from "express-list-endpoints";
-import data from "./data.json" assert { type: "json" }
+import fs from "fs"
 
+const data = JSON.parse(fs.readFileSync("./data.json", "utf-8"))
 
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
 // when starting the server. Example command to overwrite PORT env variable value:
