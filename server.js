@@ -36,6 +36,17 @@ app.get("/thoughts/:id", (req, res) => {
   }
 })
 
+//TODO: endpoint to get thoughts by hearts
+app.get("/thoughts/hearts/:hearts", (req, res) => {
+  const hearts = req.params.hearts
+  if (!hearts) {
+    return res.status(400).send({ error: "Please provide a number of hearts" })
+  }
+
+  const filteredThoughts = Data.filter(thought => thought.hearts === Number(hearts))
+  res.json(filteredThoughts)
+})
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
