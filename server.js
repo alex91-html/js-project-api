@@ -1,5 +1,6 @@
 import cors from "cors"
 import express from "express"
+import listEndpoints from "express-list-endpoints"
 // import dotenv from "dotenv"
 import Data from "./data.json"
 
@@ -17,9 +18,11 @@ app.use(express.json())
 // END POINTS
 // Start defining your routes here 
 app.get("/", (req, res) => {
-  res.send("Hello Technigo! hej hej hej!")
+  res.json({
+    message: "Welcome to the Thoughts API!",
+    endpoints: listEndpoints(app)
+  })
 })
-
 // Endpoint to get all data
 app.get("/thoughts", (req, res) => {
   res.json(Data)
@@ -36,14 +39,14 @@ app.get("/thoughts/:id", (req, res) => {
   }
 })
 
-//TODO: endpoint to get thoughts by hearts
-app.get("/thoughts/hearts/:hearts", (req, res) => {
-  const hearts = req.params.hearts
-  if (!hearts) {
-    return res.status(400).send({ error: "Please provide a number of hearts" })
+//endpoint to get thoughts by certain number of hearts or more
+app.get("/thoughts/hearts/:minHearts", (req, res) => {
+  const minHearts = Number(req.params.minHearts)
+  if (isNaN(minHearts)) {
+    return res.status(400).send({ error: "Please provide a valid number of hearts" })
   }
 
-  const filteredThoughts = Data.filter(thought => thought.hearts === Number(hearts))
+  const filteredThoughts = Data.filter(thought => thought.hearts >= minHearts)
   res.json(filteredThoughts)
 })
 
