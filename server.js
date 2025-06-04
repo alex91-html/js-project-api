@@ -28,10 +28,7 @@ app.get("/thoughts", (req, res) => {
 
 // endpoint to get one thought by id
 app.get("/thoughts/:id", (req, res) => {
-  console.log("Requested id:", req.params.id, "Type:", typeof req.params.id)
-  console.log("All IDs in Data:", Data.map(t => t.id))
-  const id = Number(req.params.id)
-  const thought = Data.find(thought => thought.id === id)
+  const thought = Data.find(thought => thought._id === req.params.id)
   if (thought) {
     res.json(thought)
   } else {
