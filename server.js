@@ -31,6 +31,8 @@ const thoughtSchema = new mongoose.Schema({
   }
 })
 
+const Thought = mongoose.model("Thought", thoughtSchema)
+
 // END POINTS
 // Start defining your routes here 
 app.get("/", (req, res) => {
