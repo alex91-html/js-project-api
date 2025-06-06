@@ -21,6 +21,15 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
+const thoughtSchema = new mongoose.Schema({
+  _id: String,
+  message: String,
+  hearts: Number,
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+})
 
 // END POINTS
 // Start defining your routes here 
