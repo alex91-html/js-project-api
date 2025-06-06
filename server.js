@@ -1,6 +1,7 @@
 import cors from "cors"
 import express from "express"
 import listEndpoints from "express-list-endpoints"
+import mongoose from "mongoose"
 // import dotenv from "dotenv"
 import Data from "./data.json"
 
@@ -54,3 +55,5 @@ app.get("/thoughts/hearts/:minHearts", (req, res) => {
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`)
 })
+
+
