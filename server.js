@@ -24,7 +24,10 @@ app.use(express.json())
 const thoughtSchema = new mongoose.Schema({
   _id: String,
   message: String,
-  hearts: Number,
+  hearts: {
+    type: Number,
+    default: 0,
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -32,6 +35,19 @@ const thoughtSchema = new mongoose.Schema({
 })
 
 const Thought = mongoose.model("Thought", thoughtSchema)
+
+
+if (process.env.RESET_DB) {
+  const seedData = async () => {
+    await Thought.deleteMany({}) // Clear the collection before seeding
+    thoughtData.forEach(thought => {
+      new Thought(thought).save()
+    })
+  }
+  seedData()
+}
+
+
 
 // END POINTS
 // Start defining your routes here 
@@ -41,30 +57,39 @@ app.get("/", (req, res) => {
     endpoints: listEndpoints(app)
   })
 })
+
 // Endpoint to get all data
-app.get("/thoughts", (req, res) => {
-  res.json(Data)
+app.get("/thoughts", async (req, res) => {
+  try {
+    const thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
+    res.json(thoughts);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch thoughts" });
+  }
 });
 
-
 // endpoint to get one thought by id
-app.get("/thoughts/:id", (req, res) => {
-  const thought = Data.find(thought => thought._id === req.params.id)
-  if (thought) {
-    res.json(thought)
-  } else {
-    res.status(404).send({ error: "I'm sorry the thought was not found" })
+app.get("/thoughts/:id", async (req, res) => {
+  try {
+    const thought = await Thought.findById(req.params.id);
+    if (thought) {
+      res.json(thought);
+    } else {
+      res.status(404).json({ error: "Thought not found" });
+    }
+  } catch {
+    res.status(400).json({ error: "Invalid ID format" });
   }
-})
+});
 
 //endpoint to get thoughts by certain number of hearts or more
-app.get("/thoughts/hearts/:minHearts", (req, res) => {
+app.get("/thoughts/hearts/:minHearts", async (req, res) => {
   const minHearts = Number(req.params.minHearts)
   if (isNaN(minHearts)) {
     return res.status(400).send({ error: "Please provide a valid number of hearts" })
   }
 
-  const filteredThoughts = Data.filter(thought => thought.hearts >= minHearts)
+  const filteredThoughts = await Thought.find({ hearts: { $gte: minHearts } })
   res.json(filteredThoughts)
 })
 
