@@ -3,7 +3,9 @@ import express from "express"
 import listEndpoints from "express-list-endpoints"
 import mongoose, { mongo } from "mongoose"
 // import dotenv from "dotenv"
-import Data from "./data.json"
+// import Data from "./data.json"
+
+
 
 
 
@@ -61,24 +63,24 @@ app.get("/", (req, res) => {
 // Endpoint to get all data
 app.get("/thoughts", async (req, res) => {
   try {
-    const thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
+    let thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
     res.json(thoughts);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch thoughts" });
+  } catch (error) {
+    res.status(404).json({ error: "Failed to fetch thoughts" });
   }
 });
 
 // endpoint to get one thought by id
 app.get("/thoughts/:id", async (req, res) => {
   try {
-    const thought = await Thought.findById(req.params.id);
+    const thought = await Thought.findById(req.params.id)
     if (thought) {
-      res.json(thought);
+      res.json(thought)
     } else {
-      res.status(404).json({ error: "Thought not found" });
+      res.status(404).json({ error: "Thought not found" })
     }
-  } catch {
-    res.status(400).json({ error: "Invalid ID format" });
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID format" })
   }
 });
 
@@ -91,6 +93,68 @@ app.get("/thoughts/hearts/:minHearts", async (req, res) => {
 
   const filteredThoughts = await Thought.find({ hearts: { $gte: minHearts } })
   res.json(filteredThoughts)
+})
+
+// Endpoint to create a new thought
+app.post("/thoughts", async (req, res) => {
+  const { message, hearts } = req.body
+
+  if (!message || typeof message !== "string") {
+    return res.status(400).json({ error: "Message is required and must be a string" })
+  }
+
+  if (hearts !== undefined && typeof hearts !== "number") {
+    return res.status(400).json({ error: "Hearts must be a number" })
+  }
+
+  try {
+    const newThought = await new Thought({ message, hearts }).save()
+    res.status(201).json(newThought)
+  } catch (error) {
+    res.status(500).json({ error: "Failed to create thought" })
+  }
+})
+
+// Endpoint to update a thought
+app.put("/thoughts/:id", async (req, res) => {
+  const { message, hearts } = req.body
+
+  if (message && typeof message !== "string") {
+    return res.status(400).json({ error: "Message must be a string" })
+  }
+
+  if (hearts !== undefined && typeof hearts !== "number") {
+    return res.status(400).json({ error: "Hearts must be a number" })
+  }
+
+  try {
+    const updatedThought = await Thought.findByIdAndUpdate(
+      req.params.id,
+      { message, hearts },
+      { new: true, runValidators: true }
+    )
+    if (updatedThought) {
+      res.json(updatedThought)
+    } else {
+      res.status(404).json({ error: "Thought not found" })
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Invalid ID format" })
+  }
+})
+
+// Endpoint to delete a thought
+app.delete("/thoughts/:id", async (req, res) => {
+  try {
+    const deletedThought = await Thought.findByIdAndDelete(req.params.id)
+    if (deletedThought) {
+      res.json({ message: "Thought deleted successfully" })
+    } else {
+      res.status(404).json({ error: "Thought not found" })
+    }
+  } catch (err) {
+    res.status(400).json({ error: "Invalid ID format" })
+  }
 })
 
 // Start the server

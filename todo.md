@@ -1,3 +1,5 @@
 - [x] start week 19 assignmetn 
 - [x] fix app crash
 - [x] make week 18 assignment more funky
+- [x] deploy the backend in render
+- [] update the front end
