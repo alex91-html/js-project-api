@@ -3,10 +3,20 @@
 - [x] make week 18 assignment more funky
 - [x] deploy the backend in render
 - [x] Your API should use Mongoose models to model your data and use these models to fetch data from the database.
-- [] Your API should validate user input and return appropriate errors if the input is invalid.
+- [x] Your API should validate user input and return appropriate errors if the input is invalid.
 - [x] You should implement error handling for all your routes, with proper response statuses.
-- [] Your frontend should be updated with the possibility to Update and Delete a thought.
-- [] check the render deployment if it works
+- [x] Your frontend should be updated with the possibility to Update and Delete a thought.
+
+
+
+- [] why is there no happy thought been shown?
+  - [x] check the render deployment if it works
+  - [] check MongoDB
+- [] make the update and delete look a bit better
+
+
+
+
 
 - [] Your API should have routes to register and log in
 - [] Your endpoints to Create, Update and Delete should be authenticated
