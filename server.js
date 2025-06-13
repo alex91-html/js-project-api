@@ -1,16 +1,9 @@
 import cors from "cors"
 import express from "express"
 import listEndpoints from "express-list-endpoints"
-import mongoose, { mongo } from "mongoose"
-// import dotenv from "dotenv"
-// import Data from "./data.json"
+import mongoose from "mongoose"
 
-
-
-
-
-// the mongo URL to connect to the database
-const mongoUrl = process.env.MONGO_URL || "mongodb://localhost/thoughts"
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017/thoughts"
 mongoose.connect(mongoUrl)
 
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
@@ -50,26 +43,41 @@ if (process.env.RESET_DB) {
 }
 
 
-
 // END POINTS
 // Start defining your routes here 
 app.get("/", (req, res) => {
+  const endpoints = listEndpoints(app)
   res.json({
-    message: "Welcome to the Thoughts API!",
-    endpoints: listEndpoints(app)
+    message: "Welcome to the Happy Thoughts API!",
+    endpoints: endpoints,
   })
 })
 
-// Endpoint to get all data
-app.get("/thoughts", async (req, res) => {
-  try {
-    let thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
-    res.json(thoughts);
-  } catch (error) {
-    res.status(404).json({ error: "Failed to fetch thoughts" });
-  }
+//TODO: somthing is not working here, need to debug
+//TODO: add query params to filter by quantity of hearts or date it has been created
+// Endpoint to get all data, like all the thoughts
+
+app.get("/thoughts", (req, res) => {
+
+  const { time, hearts } = req.query;
+  let filter = {};
+  if (time) filter.createdAt = { $gte: new Date(time) };
+  if (hearts) filter.hearts = { $gte: Number(hearts) };
+
+  const thoughts = await Thought.find(filter).sort({ createdAt: -1 }).limit(20);
+  res.json(thoughts);
 });
 
+// try {
+//   let thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
+//   console.log("Fetched thoughts:", thoughts); // Debug the query result
+//   res.json(thoughts);
+// } catch (error) {
+//   console.error("Error fetching thoughts:", error); // Log the error details
+//   res.status(500).json({ error: "Failed to fetch thoughts", details: error.message });
+// }
+
+//TODO: somthing is not working here, need to debug
 // endpoint to get one thought by id
 app.get("/thoughts/:id", async (req, res) => {
   try {
@@ -84,6 +92,7 @@ app.get("/thoughts/:id", async (req, res) => {
   }
 });
 
+//TODO: maybe i can delete this endpoint?
 //endpoint to get thoughts by certain number of hearts or more
 app.get("/thoughts/hearts/:minHearts", async (req, res) => {
   const minHearts = Number(req.params.minHearts)
@@ -95,6 +104,7 @@ app.get("/thoughts/hearts/:minHearts", async (req, res) => {
   res.json(filteredThoughts)
 })
 
+//TODO: check if this endpoint works
 // Endpoint to create a new thought
 app.post("/thoughts", async (req, res) => {
   const { message, hearts } = req.body
@@ -117,45 +127,98 @@ app.post("/thoughts", async (req, res) => {
 
 // Endpoint to update a thought
 app.put("/thoughts/:id", async (req, res) => {
-  const { message, hearts } = req.body
-
-  if (message && typeof message !== "string") {
-    return res.status(400).json({ error: "Message must be a string" })
-  }
-
-  if (hearts !== undefined && typeof hearts !== "number") {
-    return res.status(400).json({ error: "Hearts must be a number" })
-  }
+  const { message, hearts } = req.body;
 
   try {
     const updatedThought = await Thought.findByIdAndUpdate(
       req.params.id,
       { message, hearts },
       { new: true, runValidators: true }
-    )
+    );
     if (updatedThought) {
-      res.json(updatedThought)
+      res.json(updatedThought);
     } else {
-      res.status(404).json({ error: "Thought not found" })
+      res.status(404).json({ error: "Thought not found" });
     }
-  } catch (err) {
-    res.status(400).json({ error: "Invalid ID format" })
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID format" });
   }
 })
 
 // Endpoint to delete a thought
 app.delete("/thoughts/:id", async (req, res) => {
   try {
-    const deletedThought = await Thought.findByIdAndDelete(req.params.id)
+    const deletedThought = await Thought.findByIdAndDelete(req.params.id);
     if (deletedThought) {
-      res.json({ message: "Thought deleted successfully" })
+      res.json({ message: "Thought deleted successfully" });
     } else {
-      res.status(404).json({ error: "Thought not found" })
+      res.status(404).json({ error: "Thought not found" });
     }
-  } catch (err) {
-    res.status(400).json({ error: "Invalid ID format" })
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID format" });
   }
-})
+});
+
+// Endpoint to like a thought
+app.post("/thoughts/:id/like", async (req, res) => {
+  try {
+    const thought = await Thought.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { hearts: 1 } },
+      { new: true }
+    );
+    if (thought) {
+      res.json(thought);
+    } else {
+      res.status(404).json({ error: "Thought not found" });
+    }
+  } catch (error) {
+    res.status(400).json({ error: "Invalid ID format" });
+  }
+});
+
+// Endpoint to update a thought by ID with prompt
+app.put("/thoughts/:id/prompt", async (req, res) => {
+  const { id } = req.params;
+
+  const newMessage = prompt("Enter the updated message:");
+  if (!newMessage) return;
+
+  try {
+    const response = await fetch(`${API_URL}/thoughts/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: newMessage }),
+    });
+
+    if (response.ok) {
+      const updatedThought = await response.json();
+      setThoughts(thoughts.map((thought) =>
+        thought._id === id ? updatedThought : thought
+      ));
+    } else {
+      console.error("Failed to update thought:", response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error("Error updating thought:", error);
+  }
+});
+
+const deleteThought = async (id) => {
+  try {
+    const response = await fetch(`${API_URL}/thoughts/${id}`, {
+      method: "DELETE",
+    });
+
+    if (response.ok) {
+      setThoughts(thoughts.filter((thought) => thought._id !== id));
+    } else {
+      console.error("Failed to delete thought:", response.status, response.statusText);
+    }
+  } catch (error) {
+    console.error("Error deleting thought:", error);
+  }
+};
 
 // Start the server
 app.listen(port, () => {
