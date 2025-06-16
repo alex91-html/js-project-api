@@ -69,6 +69,44 @@ app.post("/thoughts", async (req, res) => {
   }
 });
 
+// Endpoint to like a thought
+app.post("/thoughts/:id/like", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const updatedThought = await Thought.findByIdAndUpdate(
+      id,
+      { $inc: { hearts: 1 } }, // Increment the hearts count
+      { new: true } // Return the updated document
+    );
+
+    if (!updatedThought) {
+      return res.status(404).json({ error: "Thought not found" });
+    }
+
+    res.status(200).json(updatedThought);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to like the thought", details: error.message });
+  }
+});
+
+// Endpoint to delete a thought
+app.delete("/thoughts/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedThought = await Thought.findByIdAndDelete(id);
+
+    if (!deletedThought) {
+      return res.status(404).json({ error: "Thought not found" });
+    }
+
+    res.status(200).json({ message: "Thought deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete the thought", details: error.message });
+  }
+});
+
 // Start the server
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
