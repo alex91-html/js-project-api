@@ -1,5 +1,7 @@
 import cors from "cors";
 import express from "express";
+import listEndpoints from "express-list-endpoints";
+
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 
@@ -43,6 +45,12 @@ const thoughtSchema = new mongoose.Schema({
 
 const Thought = mongoose.model("Thought", thoughtSchema);
 
+// Endpoint to get API documentation
+app.get("/", (req, res) => {
+  res.json(listEndpoints(app));
+});
+
+
 // Endpoint to get all thoughts
 app.get("/thoughts", async (req, res) => {
   try {
@@ -62,7 +70,7 @@ app.post("/thoughts", async (req, res) => {
   }
 
   try {
-    const newThought = await new Thought({ message }).save();
+    const newThought = await new Thought({ message, createdBy: req.user.userId }).save();
     res.status(201).json(newThought);
   } catch (error) {
     res.status(500).json({ error: "Failed to create thought", details: error.message });
@@ -95,15 +103,61 @@ app.delete("/thoughts/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const deletedThought = await Thought.findByIdAndDelete(id);
+    const deletedThought = await Thought.findOneAndDelete({
+      _id: id,
+      createdBy: req.user.userId,
+    });
 
     if (!deletedThought) {
-      return res.status(404).json({ error: "Thought not found" });
+      return res.status(404).json({ error: "Thought not found or not authorized" });
     }
 
     res.status(200).json({ message: "Thought deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete the thought", details: error.message });
+    res.status(500).json({ error: "Failed to delete thought", details: error.message });
+  }
+});
+
+// Endpoint to get a single thought by ID
+app.get("/thoughts/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const thought = await Thought.findById(id);
+
+    if (!thought) {
+      return res.status(404).json({ error: "Thought not found" });
+    }
+
+    res.status(200).json(thought);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch the thought", details: error.message });
+  }
+});
+
+// Endpoint to update a thought
+app.put("/thoughts/:id", async (req, res) => {
+  const { id } = req.params;
+  const { message } = req.body;
+
+  if (!message || message.length < 5 || message.length > 140) {
+    return res.status(400).json({ error: "Message must be between 5 and 140 characters" });
+  }
+
+  try {
+    const updatedThought = await Thought.findOneAndUpdate(
+      { _id: id, createdBy: req.user.userId },
+      { message },
+      { new: true }
+    );
+
+    if (!updatedThought) {
+      return res.status(404).json({ error: "Thought not found or not authorized" });
+    }
+
+    res.status(200).json(updatedThought);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update thought", details: error.message });
   }
 });
 
