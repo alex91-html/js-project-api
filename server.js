@@ -2,8 +2,9 @@ import cors from "cors"
 import express from "express"
 import listEndpoints from "express-list-endpoints"
 import mongoose from "mongoose"
+import dotenv from "dotenv"
 
-const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017/thoughts"
+const mongoUrl = process.env.MONGO_URL || "mongodb://localhost:27017/happy-thoughts-api"
 mongoose.connect(mongoUrl)
 
 // Defines the port the app will run on. Defaults to 8080, but can be overridden
@@ -15,8 +16,9 @@ const app = express()
 // Add middlewares to enable cors and json body parsing
 app.use(cors())
 app.use(express.json())
+dotenv.config()
 
-const thoughtSchema = new mongoose.Schema({
+const thoughtSchema = new mongoose.Schema({ // Schema for the thoughts 
   _id: String,
   message: String,
   hearts: {
@@ -29,9 +31,7 @@ const thoughtSchema = new mongoose.Schema({
   }
 })
 
-const Thought = mongoose.model("Thought", thoughtSchema)
-
-
+const Thought = mongoose.model("Thought", thoughtSchema) // name and schema for the model
 if (process.env.RESET_DB) {
   const seedData = async () => {
     await Thought.deleteMany({}) // Clear the collection before seeding
@@ -57,8 +57,8 @@ app.get("/", (req, res) => {
 //TODO: add query params to filter by quantity of hearts or date it has been created
 // Endpoint to get all data, like all the thoughts
 
-app.get("/thoughts", (req, res) => {
-
+app.get("/thoughts", async (req, res) => {
+  console.log(" GET / thoughts endpoint hit!!! PARTY TIME!!!")
   const { time, hearts } = req.query;
   let filter = {};
   if (time) filter.createdAt = { $gte: new Date(time) };
@@ -68,28 +68,37 @@ app.get("/thoughts", (req, res) => {
   res.json(thoughts);
 });
 
-// try {
-//   let thoughts = await Thought.find().sort({ createdAt: -1 }).limit(20);
-//   console.log("Fetched thoughts:", thoughts); // Debug the query result
-//   res.json(thoughts);
-// } catch (error) {
-//   console.error("Error fetching thoughts:", error); // Log the error details
-//   res.status(500).json({ error: "Failed to fetch thoughts", details: error.message });
-// }
 
 //TODO: somthing is not working here, need to debug
 // endpoint to get one thought by id
+
 app.get("/thoughts/:id", async (req, res) => {
+  const { id } = req.params;
+
   try {
-    const thought = await Thought.findById(req.params.id)
-    if (thought) {
-      res.json(thought)
-    } else {
-      res.status(404).json({ error: "Thought not found" })
+    const thought = await Thought.findById(req.params.id); // Query the database
+
+    if (!thought) {
+      res.status(404).json({
+        success: false,
+        response: null,
+        message: "Thought not found"
+      }); // Handle not found
     }
+    res.status(200).json({
+      success: true,
+      response: thought,
+      message: "Thought fetched successfully"
+    }); // Return the thought  
   } catch (error) {
-    res.status(400).json({ error: "Invalid ID format" })
+    res.status(500).json({
+      success: false,
+      response: null,
+      message: "Error fetching thought",
+      error: error.message
+    }); // Handle errors
   }
+
 });
 
 //TODO: maybe i can delete this endpoint?
@@ -159,6 +168,7 @@ app.delete("/thoughts/:id", async (req, res) => {
   }
 });
 
+// TODO: check if this endpoint works, 
 // Endpoint to like a thought
 app.post("/thoughts/:id/like", async (req, res) => {
   try {
@@ -178,31 +188,31 @@ app.post("/thoughts/:id/like", async (req, res) => {
 });
 
 // Endpoint to update a thought by ID with prompt
-app.put("/thoughts/:id/prompt", async (req, res) => {
-  const { id } = req.params;
+// app.put("/thoughts/:id/prompt", async (req, res) => {
+//   const { id } = req.params;
 
-  const newMessage = prompt("Enter the updated message:");
-  if (!newMessage) return;
+//   const newMessage = prompt("Enter the updated message:");
+//   if (!newMessage) return;
 
-  try {
-    const response = await fetch(`${API_URL}/thoughts/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: newMessage }),
-    });
+//   try {
+//     const response = await fetch(`${API_URL}/thoughts/${id}`, {
+//       method: "PUT",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify({ message: newMessage }),
+//     });
 
-    if (response.ok) {
-      const updatedThought = await response.json();
-      setThoughts(thoughts.map((thought) =>
-        thought._id === id ? updatedThought : thought
-      ));
-    } else {
-      console.error("Failed to update thought:", response.status, response.statusText);
-    }
-  } catch (error) {
-    console.error("Error updating thought:", error);
-  }
-});
+//     if (response.ok) {
+//       const updatedThought = await response.json();
+//       setThoughts(thoughts.map((thought) =>
+//         thought._id === id ? updatedThought : thought
+//       ));
+//     } else {
+//       console.error("Failed to update thought:", response.status, response.statusText);
+//     }
+//   } catch (error) {
+//     console.error("Error updating thought:", error);
+//   }
+// });
 
 const deleteThought = async (id) => {
   try {
