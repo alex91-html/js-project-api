@@ -29,17 +29,14 @@
 
 
 - [] week 20
-  - [] use postman to test the endpoint, results: 
-    - ADD THOUGHT POST /thoughts - **!!!FAILD!!!** 
-      "error": "Failed to create thought" - 500 Internal Server Error
-    - LIKE THOUGHT - error 404 not found **!!!FAILD!!!**
-    - EDIT A THOUGHT **!!WORKS!!**
-    - DELETE A THOUGHT **!!WORKS!!**
-  - [] make the edit text frame look nicer
   - [x] add a btn for edit, 
   - [x] add a btn for delete
-  - [] make the text frame in edit expandable
-  - [] place the edit, and delete in better places
+  - [] use postman to test the endpoint, results: 
+    - [x] ADD THOUGHT POST /thoughts - **!!!FAILD!!!** 
+      "error": "Failed to create thought" - 500 Internal Server Error
+    - [] LIKE THOUGHT - error 404 not found **!!!FAILD!!!**
+    - [x] EDIT A THOUGHT **!!WORKS!!**
+    - [x] DELETE A THOUGHT **!!WORKS!!**
   - [] Your API should have routes to register and log in
   - [] Your endpoints to Create, Update and Delete should be authenticated
   - [] Your frontend should have a registration form which POSTs to the API to create a new user.
@@ -47,8 +44,15 @@
   - [] Your passwords in the database should be encrypted with bcrypt.
   - [] You should implement error handling. Your API should let the user know if something went wrong. Be as specific as possible to help the user, e.g. by validating the user input when creating a new user, and return "That email address already exists". Include correct status codes. Error messages should also be shown on the frontend.
   - [] The validation should ensure unique email addresses and/or usernames, depending on how you'd like to structure your User model.
+  
+  = = = extras
+  
+  - [] make the edit text frame look nicer
+  - [] make the text frame in edit expandable
   - [] should i use react router? 
   - [] clean up components in frontend
+  - [] move the edit and delte btns
+
   
 
 
