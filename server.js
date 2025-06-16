@@ -4,6 +4,7 @@ import listEndpoints from "express-list-endpoints";
 
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import { Thought } from "./models/Thought.js"; // Adjust the import path as necessary
 
 dotenv.config();
 
@@ -24,26 +25,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Define the Thought schema
-const thoughtSchema = new mongoose.Schema({
-  message: {
-    type: String,
-    required: true,
-    minLength: 5,
-    maxLength: 140,
-  },
-  hearts: {
-    type: Number,
-    default: 0,
-    min: 0,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-});
 
-const Thought = mongoose.model("Thought", thoughtSchema);
 
 // Endpoint to get API documentation
 app.get("/", (req, res) => {
