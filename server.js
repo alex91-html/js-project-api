@@ -52,8 +52,7 @@ app.post("/thoughts", async (req, res) => {
 
   try {
     console.log("Creating new thought:", message);
-    const placeholderUserId = "testUserId"; // Hardcoded user ID for testing
-    const newThought = await new Thought({ message, createdBy: placeholderUserId }).save();
+    const newThought = await new Thought({ message }).save();
     res.status(201).json(newThought);
   } catch (error) {
     res.status(500).json({ error: "Failed to create thought", details: error.message });
@@ -86,14 +85,10 @@ app.delete("/thoughts/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const placeholderUserId = "testUserId"; // Hardcoded user ID for testing
-    const deletedThought = await Thought.findOneAndDelete({
-      _id: id,
-      createdBy: placeholderUserId,
-    });
+    const deletedThought = await Thought.findByIdAndDelete(id); // No user association
 
     if (!deletedThought) {
-      return res.status(404).json({ error: "Thought not found or not authorized" });
+      return res.status(404).json({ error: "Thought not found" });
     }
 
     res.status(200).json({ message: "Thought deleted successfully" });
@@ -129,15 +124,14 @@ app.put("/thoughts/:id", async (req, res) => {
   }
 
   try {
-    const placeholderUserId = "testUserId"; // Hardcoded user ID for testing
-    const updatedThought = await Thought.findOneAndUpdate(
-      { _id: id, createdBy: placeholderUserId },
-      { message },
+    const updatedThought = await Thought.findByIdAndUpdate(
+      id,
+      { message }, // Update the message only
       { new: true }
     );
 
     if (!updatedThought) {
-      return res.status(404).json({ error: "Thought not found or not authorized" });
+      return res.status(404).json({ error: "Thought not found" });
     }
 
     res.status(200).json(updatedThought);
