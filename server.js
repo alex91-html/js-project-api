@@ -26,7 +26,6 @@ app.use(cors());
 app.use(express.json());
 
 
-
 // Endpoint to get API documentation
 app.get("/", (req, res) => {
   res.json(listEndpoints(app));
@@ -52,7 +51,9 @@ app.post("/thoughts", async (req, res) => {
   }
 
   try {
-    const newThought = await new Thought({ message, createdBy: req.user.userId }).save();
+    console.log("Creating new thought:", message);
+    const placeholderUserId = "testUserId"; // Hardcoded user ID for testing
+    const newThought = await new Thought({ message, createdBy: placeholderUserId }).save();
     res.status(201).json(newThought);
   } catch (error) {
     res.status(500).json({ error: "Failed to create thought", details: error.message });
@@ -85,9 +86,10 @@ app.delete("/thoughts/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
+    const placeholderUserId = "testUserId"; // Hardcoded user ID for testing
     const deletedThought = await Thought.findOneAndDelete({
       _id: id,
-      createdBy: req.user.userId,
+      createdBy: placeholderUserId,
     });
 
     if (!deletedThought) {
@@ -127,8 +129,9 @@ app.put("/thoughts/:id", async (req, res) => {
   }
 
   try {
+    const placeholderUserId = "testUserId"; // Hardcoded user ID for testing
     const updatedThought = await Thought.findOneAndUpdate(
-      { _id: id, createdBy: req.user.userId },
+      { _id: id, createdBy: placeholderUserId },
       { message },
       { new: true }
     );
