@@ -31,12 +31,18 @@
 - [] week 20
   - [x] add a btn for edit, 
   - [x] add a btn for delete
-  - [] use postman to test the endpoint, results: 
+  - [x] use postman to test the endpoint, results: 
     - [x] ADD THOUGHT POST /thoughts - **!!!FAILD!!!** 
       "error": "Failed to create thought" - 500 Internal Server Error
-    - [] LIKE THOUGHT - error 404 not found **!!!FAILD!!!**
+    - [x] LIKE THOUGHT - error 404 not found **!!!FAILD!!!**
     - [x] EDIT A THOUGHT **!!WORKS!!**
     - [x] DELETE A THOUGHT **!!WORKS!!**
+    
+    - [] could the error be related to authentication?
+
+  - [x] Editing, cancelling and creatign a new thought when working with the deployed database is not working. 
+
+
   - [] Your API should have routes to register and log in
   - [] Your endpoints to Create, Update and Delete should be authenticated
   - [] Your frontend should have a registration form which POSTs to the API to create a new user.
