@@ -69,9 +69,9 @@
 [✔] Create a thought
 [✔] Update a thought
 [✔] Delete a thought
-[ ] Create a thought (authenticated)
-[ ] Update a thought (authenticated)
-[ ] Delete a thought (authenticated)
+[✔] Create a thought (authenticated)
+[✔] Update a thought (authenticated)
+[✔] Delete a thought (authenticated)
 [ ] Sign up
 [ ] Log in
 

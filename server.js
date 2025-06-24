@@ -5,6 +5,7 @@ import listEndpoints from "express-list-endpoints";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Thought } from "./models/Thought.js"; // Adjust the import path as necessary
+import authRouter from "./routes/auth.js";
 
 dotenv.config();
 
@@ -139,6 +140,8 @@ app.put("/thoughts/:id", async (req, res) => {
     res.status(500).json({ error: "Failed to update thought", details: error.message });
   }
 });
+
+app.use("/auth", authRouter);
 
 // Start the server
 app.listen(port, () => {
