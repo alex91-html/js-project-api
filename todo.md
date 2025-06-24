@@ -23,26 +23,17 @@
   - [x] look throught all classes again and try to fix problem with my code
   - [x] seems not possible to add a thought, edit or remove a thuoght not even to like
   - [x] Your frontend should be updated with the possibility to Update and Delete a thought.
-
-
-
-
-
 - [] week 20
   - [x] add a btn for edit, 
   - [x] add a btn for delete
   - [x] use postman to test the endpoint, results: 
-    - [x] ADD THOUGHT POST /thoughts - **!!!FAILD!!!** 
-      "error": "Failed to create thought" - 500 Internal Server Error
-    - [x] LIKE THOUGHT - error 404 not found **!!!FAILD!!!**
-    - [x] EDIT A THOUGHT **!!WORKS!!**
-    - [x] DELETE A THOUGHT **!!WORKS!!**
-    
-    - [] could the error be related to authentication?
-
+  - [x] ADD THOUGHT POST /thoughts - **!!!FAILD!!!** 
+     "error": "Failed to create thought" - 500 Internal Server Error
+  - [x] LIKE THOUGHT - error 404 not found **!!!FAILD!!!**
+  - [x] EDIT A THOUGHT **!!WORKS!!**
+  - [x] DELETE A THOUGHT **!!WORKS!!**
+  - [x] could the error be related to authentication?
   - [x] Editing, cancelling and creatign a new thought when working with the deployed database is not working. 
-
-
   - [] Your API should have routes to register and log in
   - [] Your endpoints to Create, Update and Delete should be authenticated
   - [] Your frontend should have a registration form which POSTs to the API to create a new user.
@@ -60,9 +51,90 @@
   - [] move the edit and delte btns
 
   
-
+- [] Completion of one peer code review - on the backend repo.
 
 
   **NOTES**: maybe I have to fix the endpoints? Have to look at week 19 to check what are the mistaked with the diployed data, i think the problem is there. 
     - **13.06 - 16:08** it is fetching data from the deployed data, but seems i can't add likes, remove or edit anything
     - **video of we** got at min 00:34 
+
+ = = = 
+
+ API ROUTES & FEATURES
+─────────────────────────────────────────────
+[✔] Documentation (Express List Endpoints)
+[✔] Read all thoughts
+[✔] Read a single thought
+[✔] Like a thought
+[✔] Create a thought
+[✔] Update a thought
+[✔] Delete a thought
+[ ] Create a thought (authenticated)
+[ ] Update a thought (authenticated)
+[ ] Delete a thought (authenticated)
+[ ] Sign up
+[ ] Log in
+
+API DESIGN & QUALITY
+─────────────────────────────────────────────
+[✔] RESTful API
+[✔] Clean code guidelines (partially, review for improvements)
+[✔] Mongoose models for data
+[✔] Input validation for thoughts
+[ ] Input validation for users (unique email/username)
+[✔] Error handling for thoughts
+[ ] Error handling for users/auth
+[ ] Password encryption with bcrypt
+
+FRONTEND FEATURES
+─────────────────────────────────────────────
+[✔] Read thoughts
+[✔] Like a thought
+[✔] Create a thought
+[✔] Update a thought
+[✔] Delete a thought
+[ ] Sign up
+[ ] Log in
+[ ] Error handling for auth
+
+DEPLOYMENT
+─────────────────────────────────────────────
+[✔] API deployed to Render
+
+SYNC FRONTEND & BACKEND
+─────────────────────────────────────────────
+[ ] Everything in backend reflected in frontend (auth, error handling, etc.)   
+
+
+
+
+┌─────────────────────────────┐
+│         API                │
+├─────────────────────────────┤
+│ Docs   [✔]                 │
+│ Read   [✔]                 │
+│ Read 1 [✔]                 │
+│ Like   [✔]                 │
+│ Create [✔] (auth [ ])      │
+│ Update [✔] (auth [ ])      │
+│ Delete [✔] (auth [ ])      │
+│ Signup [ ]                 │
+│ Login  [ ]                 │
+│ Validation [✔] (users [ ]) │
+│ Error handling [✔] (users[ ])│
+│ Bcrypt [ ]                 │
+└─────────────────────────────┘
+         │
+         ▼
+┌─────────────────────────────┐
+│        FRONTEND             │
+├─────────────────────────────┤
+│ Read   [✔]                 │
+│ Like   [✔]                 │
+│ Create [✔]                 │
+│ Update [✔]                 │
+│ Delete [✔]                 │
+│ Signup [ ]                 │
+│ Login  [ ]                 │
+│ Auth error handling [ ]    │
+└─────────────────────────────┘
