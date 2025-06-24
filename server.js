@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import { Thought } from "./models/Thought.js"; // Adjust the import path as necessary
 import authRouter from "./routes/auth.js";
+import { authenticateUser } from "./middleware/authMiddleware.js";
 
 dotenv.config();
 
@@ -43,17 +44,14 @@ app.get("/thoughts", async (req, res) => {
   }
 });
 
-// Endpoint to create a new thought
-app.post("/thoughts", async (req, res) => {
+// Endpoint to create a new thought (authenticated)
+app.post("/thoughts", authenticateUser, async (req, res) => {
   const { message } = req.body;
-
   if (!message || message.length < 5 || message.length > 140) {
     return res.status(400).json({ error: "Message must be between 5 and 140 characters" });
   }
-
   try {
-    console.log("Creating new thought:", message);
-    const newThought = await new Thought({ message }).save();
+    const newThought = await new Thought({ message, user: req.user._id }).save();
     res.status(201).json(newThought);
   } catch (error) {
     res.status(500).json({ error: "Failed to create thought", details: error.message });
@@ -81,17 +79,18 @@ app.post("/thoughts/:id/like", async (req, res) => {
   }
 });
 
-// Endpoint to delete a thought
-app.delete("/thoughts/:id", async (req, res) => {
+// Endpoint to delete a thought (authenticated, only owner)
+app.delete("/thoughts/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
-
   try {
-    const deletedThought = await Thought.findByIdAndDelete(id); // No user association
-
-    if (!deletedThought) {
+    const thought = await Thought.findById(id);
+    if (!thought) {
       return res.status(404).json({ error: "Thought not found" });
     }
-
+    if (String(thought.user) !== String(req.user._id)) {
+      return res.status(403).json({ error: "You are not authorized to delete this thought" });
+    }
+    await thought.deleteOne();
     res.status(200).json({ message: "Thought deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: "Failed to delete thought", details: error.message });
@@ -115,27 +114,24 @@ app.get("/thoughts/:id", async (req, res) => {
   }
 });
 
-// Endpoint to update a thought
-app.put("/thoughts/:id", async (req, res) => {
+// Endpoint to update a thought (authenticated, only owner)
+app.put("/thoughts/:id", authenticateUser, async (req, res) => {
   const { id } = req.params;
   const { message } = req.body;
-
   if (!message || message.length < 5 || message.length > 140) {
     return res.status(400).json({ error: "Message must be between 5 and 140 characters" });
   }
-
   try {
-    const updatedThought = await Thought.findByIdAndUpdate(
-      id,
-      { message }, // Update the message only
-      { new: true }
-    );
-
-    if (!updatedThought) {
+    const thought = await Thought.findById(id);
+    if (!thought) {
       return res.status(404).json({ error: "Thought not found" });
     }
-
-    res.status(200).json(updatedThought);
+    if (String(thought.user) !== String(req.user._id)) {
+      return res.status(403).json({ error: "You are not authorized to update this thought" });
+    }
+    thought.message = message;
+    await thought.save();
+    res.status(200).json(thought);
   } catch (error) {
     res.status(500).json({ error: "Failed to update thought", details: error.message });
   }
